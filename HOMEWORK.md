@@ -77,7 +77,7 @@ Google Colab 上で実験を実施した．T4 GPU（無料版）を用いた．�
   - https://github.com/naok-000/lecture-ai-engineering-day3/blob/main/ai_engineering_03_homework_output.ipynb
 
 ### ベースラインモデル評価
-演習と同様，RAGを用いない状態で回答を生成させた．以下に結果と正しい回答の要素が含まれているか．
+演習と同様，RAGを用いない状態で回答を生成させた．以下に結果と正しい回答の要素が含まれているかを示した．
 #### 質問1
 ```
 The primary benefit of deploying Fixed Sensor Nodes (FSNs) in Vehicle-to-Infrastructure (V2I) cooperative systems, especially in complex urban scenarios, is **enhanced situational awareness and improved safety**. 
@@ -119,10 +119,9 @@ While FSNs offer significant benefits, it's important to consider the challenges
 Despite these challenges, FSNs play a crucial role in the development of V2I cooperative systems, particularly in complex urban environments.  Their ability to provide comprehensive data and enhance situational awareness makes them a key component in improving road safety and traffic management. 
 ```
 - 1. なし
-- 2. 部分的にあり（「監視」という要素はあるが，「交差点や視界不良箇所」「常時」という要素はない ）
+- 2. 部分的にあり
 - 3. あり
-- 4. 部分的にあり（安全性向上は含まれており，交通流の最適化は含まれていない）
-
+- 4. 部分的にあり
 
 #### 質問2
 ```
@@ -220,15 +219,14 @@ Here's how they complement each other and the specific mechanisms that enable th
 
 By combining object detection and cooperative tracking, V2I autonomous driving systems can create a safer and more reliable environment for all road users. 
 ```
-- 1.1 
-- 1.2
-- 1.3
-- 2.1
-- 2.2
-- 2.3
-- 3.1
-- 3.2
-- 3.3
+- 1.1 あり
+- 1.2 なし
+- 2.1 なし
+- 2.2 なし
+- 2.3 あり
+- 3.1 なし
+- 3.2 なし
+- 3.3 なし
 
 #### 質問4
 ```
@@ -260,6 +258,14 @@ By combining object detection and cooperative tracking, V2I autonomous driving s
 * **道路状況の変化:**  道路状況が変化した場合、協調型物体検出と追跡システムは、変化した状況を認識し、自動運転システムが適切な行動をとるように調整します。
 * **障害物:**  障害物に遭遇した場合、協調型物体検出と追跡システムは、障害物位置と速度を認識し、自動運転システムが安全な回避行動をとります。
 ```
+- 1.1 なし
+- 1.2 なし
+- 2.1 なし
+- 2.2 なし
+- 2.3 あり
+- 3.1 なし
+- 3.2 なし
+- 3.3 なし
 
 #### 質問5
 ```
@@ -268,6 +274,7 @@ The author of "Infrastructure Assisted Autonomous Driving: Research, Challenges,
 
 Let me know if you'd like to know more about this book or Dr. Wang! 
 ```
+- なし
 
 #### 質問6
 ```
@@ -275,4 +282,166 @@ Let me know if you'd like to know more about this book or Dr. Wang!
 
 「Infrastructure Assisted Autonomous Driving: Research, Challenges, and Opportunities」の著者は、インターネット上の情報から特定できません。
 ```
+- なし
 
+### RAG を組み合わせた回答生成
+
+#### RAGの実装
+
+以下のようにRAGを実装した．演習の 4. Rerankによる情報頻出の向上 を参考にした．
+1. PDFからテキストのみを抽出した．
+2. テキストを'.'で分割した．
+3. 分割したテキストと各質問の類似度を計算させた．
+4. 類似度が高い上位5つについて，前後2文ずつを含めて1つの参考資料としてまとめ，LLMに質問との関連性をyes/noで判定させた．
+5. yesの参考資料と質問をともにLLMに渡し，回答を生成させた．
+
+なお，LLMに指示するプロンプトは日本語をベースとし，資料や質問はテキストの言語をそのまま用いた．
+
+
+
+以下に結果と正しい回答の要素が含まれているかを示した．
+
+#### 質問1
+```
+FSNs の主要なメリットは、**複雑な都市環境でのV2Iシステムの効率的な動作とコスト削減**です。
+
+
+**具体的には:**
+
+* **オンボードセンサーと処理能力の削減:**  FSNs を導入することで、車両が複雑な状況を検知する際に、より多くの処理をFSNsに委託できます。これにより、車両の複雑なセンサーと処理能力の必要性を減らし、コストを削減できます。
+* **より安全な運転:**  FSNs は、車両と道路の相互連携を可能にすることで、より安全な運転を実現します。
+```
+- 1. なし
+- 2. なし
+- 3. なし
+- 4. 部分的にあり
+
+#### 質問2
+```
+## FSNをV2Iシステムに導入する主な利点
+
+**複雑な都市環境においては、FSN導入により、以下の利点が期待できます。**
+
+* **物理的Occlusionの克服:**  V2Iシステムは、車とFSNの協調によって、車に物理的に隠れている人体の検知を可能にします。
+* **より高い精度:**  複数のセンサーからの情報を融合することで、より正確な環境モデルを構築できます。
+* **コスト削減:**  車に搭載するセンサーや処理能力を削減できるため、コスト削減につながります。
+* **安全性向上:**  より正確な環境認識により、危険な状況を早期に検知し、安全な運転を支援できます。
+* **効率的な道路管理:**  FSNは道路の状況をリアルタイムで監視し、交通の効率性を向上させることができます。
+
+
+
+**具体的には、複雑な都市環境では以下のようなメリットが挙げられます。**
+
+* **密集した道路環境:**  FSNは、車と連携して道路の複雑な状況を把握し、安全な走行を支援できます。
+* **視認性の制限:**  複雑な都市環境では、視認性の制限が大きい場合があり、FSNは車と連携して視認性の制限を克服できます。
+* **人々の移動状況の把握:**  FSNは、人々の移動状況を把握し、安全な道路管理を支援できます。
+```
+- 1. 部分的にあり
+- 2. なし
+- 3. 部分的にあり
+- 4. あり
+
+#### 質問3
+```
+##  Cooperative Object Detection & Tracking: Synergy for Enhanced Safety and Reliability in V2I Autonomous Driving
+
+Cooperative object detection and tracking work together to enhance safety and reliability in V2I autonomous driving systems.  Here's how:
+
+**1. Complementing Each Other:**
+
+* **Object Detection:**  Identifies objects in the environment, providing a comprehensive view of the surroundings. This helps the system understand the presence and location of objects, crucial for safe navigation.
+* **Object Tracking:**  Follows the movement of detected objects over time, providing a dynamic understanding of their trajectory and potential hazards. This allows the system to anticipate and react to object changes, improving situational awareness.
+
+**2. Specific Mechanisms for Synergy:**
+
+* **Early Fusion:** Combining object detection results from multiple sensors in real-time. This allows for a more robust and accurate understanding of the environment, especially in heterogeneous sensor systems.
+* **Feature Flow Prediction:**  Leveraging feature flow information to track objects across different frames. This helps overcome limitations of individual sensor data, providing a more comprehensive and accurate view of object movement.
+* **Shared Coordinate System:**  Establishing a common coordinate system for all sensors, enabling consistent object tracking across different viewpoints. This ensures accurate object identification and tracking regardless of sensor perspectives.
+* **Communication and Data Sharing:**  Efficiently exchanging information between vehicles, enabling collaborative object detection and tracking. This allows vehicles to share information about detected objects, improving overall situational awareness and safety.
+* **Decision Making:**  Integrating object detection and tracking data into the autonomous driving system's decision-making process. This allows the system to make informed decisions about safe navigation, considering the dynamic environment and potential hazards.
+
+
+**3. Benefits of Combined Approach:**
+
+* **Improved Accuracy:** Combining data from multiple sensors and tracking information enhances the accuracy of object detection and tracking, reducing false positives and negatives.
+* **Enhanced Situational Awareness:**  Provides a comprehensive view of the environment, allowing the system to anticipate and react to potential hazards more effectively.
+* **Increased Safety:**  Reduces the risk of collisions and accidents by providing a more accurate and reliable understanding of the surrounding environment.
+* **Improved Reliability:**  Reduces the impact of sensor failures and data inconsistencies by leveraging multiple sensors and data sources.
+
+
+
+**In Conclusion:**
+
+Cooperative object detection and tracking work together to create a robust and reliable system for autonomous driving.  By combining their strengths, they enhance safety and reliability, enabling vehicles to navigate complex and dynamic environments with greater confidence. 
+```
+- 1.1 部分的にあり
+- 1.2 あり
+- 2.1 部分的にあり
+- 2.2 あり
+- 2.3 あり
+- 3.1 部分的にあり
+- 3.2 なし
+- 3.3 なし
+
+#### 質問4
+```
+## 協調型物体検出と協調型追跡の相互補完性
+
+協調型物体検出と協調型追跡は、V2I型自動運転システムにおける安全性と信頼性の向上に、相互補完的に働きます。 
+
+**具体的なメカニズムは以下の通りです:**
+
+1. **より正確な物体検出:** 複数のセンサーから得られる情報が、協調型物体検出によってより正確に統合されます。これは、個々のセンサーの視点から得られる情報が、より広範囲な視点から得られる情報を補完することで、より正確な物体検出を実現します。
+2. **よりリアルタイムな追跡:**  複数のセンサーからの情報が統合され、より正確な位置情報を得ることが可能になります。これにより、追跡のリアルタイム性が向上し、より迅速な判断と行動が可能になります。
+3. **より複雑な状況への対応:**  協調型追跡は、個々のセンサーの視点では見逃されやすい状況を、複数のセンサーからの情報に基づいてより正確に捉えることができます。
+4. **より安全な運転:**  より正確な物体検出とリアルタイムな追跡により、自動運転システムはより安全な運転を実現できます。
+
+
+**具体例:**
+
+* **複雑な道路状況:**  複数のセンサーからの情報が統合され、より正確な物体検出が可能となり、自動運転システムは複雑な道路状況をより正確に認識できます。
+* **遮蔽物による誤検出:**  複数のセンサーからの情報が統合され、より正確な物体検出が可能となり、自動運転システムは遮蔽物による誤検出を回避できます。
+* **複数車との衝突回避:**  協調型追跡により、複数の車との衝突を回避する判断がより迅速かつ正確に行えます。
+```
+- 1.1 あり
+- 1.2 なし
+- 2.1 なし
+- 2.2 なし
+- 2.3 あり
+- 3.1 部分的にあり
+- 3.2 なし
+- 3.3 なし
+
+
+#### 質問5
+```
+The authors of 'Infrastructure Assisted Autonomous Driving: Research, Challenges, and Opportunities' are:
+
+* Roshan George
+* Joseph Clancy
+* Tim Brophy
+* Ganesh Sistu
+* William O'Grady
+* Sunil Chandra
+* Fiacha Collins
+* Darragh Mullins
+* Edward Jones
+* Brian Deegan
+* Martin Glavin
+
+
+ 
+Let me know if you'd like any further information! 😊 
+```
+- あり
+
+#### 質問6
+```
+『Infrastructure Assisted Autonomous Driving: Research, Challenges, and Opportunities』の著者は **George**  です。 
+```
+- 部分的にあり
+
+## 結果分析と考察
+
+- 全体的に，RAGを使用しないときよりもRAGを使用したときのほうが求める回答の要素が多く含まれていた．
+- 
